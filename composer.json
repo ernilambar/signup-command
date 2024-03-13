@@ -19,9 +19,9 @@
         }
     },
     "extra": {
-        "bundled": false,
         "commands": [
-            "signup list"
+            "signup list",
+            "signup activate"
         ]
     },
     "autoload": {

@@ -16,6 +16,12 @@ class SignupCommand extends WP_CLI_Command {
 		'activation_key',
 	);
 
+	private $fetcher;
+
+	public function __construct() {
+		$this->fetcher = new SignupFetcher();
+	}
+
 	/**
 	 * Lists signups.
 	 *
@@ -75,5 +81,37 @@ class SignupCommand extends WP_CLI_Command {
 
 		$formatter = new WP_CLI\Formatter( $assoc_args );
 		$formatter->display_items( $results );
+	}
+
+	/**
+	 * Activate a user.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <user>
+	 * : ID, user login, user email or activation key.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Activate signup with ID.
+	 *     $ wp signup activate 2
+	 *     Success: User activated. Password: bZFSGsfzb9xs
+	 */
+	function activate( $args, $assoc_args ) {
+		$signup = $this->fetcher->get( $args[0] );
+
+		if ( false === $signup ) {
+			WP_CLI::error( 'Signup not found.' );
+		}
+
+		if ( $signup ) {
+			$result = wpmu_activate_signup( $signup->activation_key );
+		}
+
+		if ( ! is_wp_error( $result ) ) {
+			WP_CLI::success( "User activated. Password: {$result['password']}" );
+		} else {
+			WP_CLI::error( 'User could not be activated. Reason: ' . $result->get_error_message() );
+		}
 	}
 }
