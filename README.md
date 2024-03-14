@@ -66,6 +66,54 @@ These fields are optionally available:
     $ wp signup list --field=signup_id
     1
 
+    # List all signups.
+    $ wp signup list
+    +-----------+------------+---------------------+---------------------+--------+------------------+
+    | signup_id | user_login | user_email          | registered          | active | activation_key   |
+    +-----------+------------+---------------------+---------------------+--------+------------------+
+    | 1         | bobuser    | bobuser@example.com | 2024-03-13 05:46:53 | 1      | 7320b2f009266618 |
+    | 2         | johndoe    | johndoe@example.com | 2024-03-13 06:24:44 | 0      | 9068d859186cd0b5 |
+    +-----------+------------+---------------------+---------------------+--------+------------------+
+
+
+
+### wp signup get
+
+Gets details about the signup.
+
+~~~
+wp signup get <signup> [--field=<field>] [--fields=<fields>] [--format=<format>]
+~~~
+
+**OPTIONS**
+
+	<signup>
+		Signup ID, user login, user email or activation key.
+
+	[--field=<field>]
+		Instead of returning the whole signup, returns the value of a single field.
+
+	[--fields=<fields>]
+		Get a specific subset of the signup's fields.
+
+	[--format=<format>]
+		Render output in a particular format.
+		---
+		default: table
+		options:
+		  - table
+		  - csv
+		  - json
+		  - yaml
+		---
+
+**EXAMPLES**
+
+    # Get signup.
+    $ wp signup get 1 --format=csv
+    signup_id,user_login,user_email,registered,active,activation_key
+    1,bobuser,bobuser@example.com,"2024-03-12 05:46:53",0,663b5af63dd930fd
+
 
 
 ### wp signup activate
@@ -86,6 +134,27 @@ wp signup activate <signup>
     # Activate signup.
     $ wp signup activate 2
     Success: Signup activated. Password: bZFSGsfzb9xs
+
+
+
+### wp signup delete
+
+Deletes a signup.
+
+~~~
+wp signup delete <signup>
+~~~
+
+**OPTIONS**
+
+	<signup>
+		Signup ID, user login, user email or activation key.
+
+**EXAMPLES**
+
+    # Delete signup.
+    $ wp signup delete johndoe@example.com
+    Success: Signup deleted.
 
 ## Installing
 

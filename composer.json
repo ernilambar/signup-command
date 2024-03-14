@@ -21,7 +21,9 @@
     "extra": {
         "commands": [
             "signup list",
-            "signup activate"
+            "signup get",
+            "signup activate",
+            "signup delete"
         ]
     },
     "autoload": {
