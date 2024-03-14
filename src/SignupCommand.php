@@ -70,6 +70,15 @@ class SignupCommand extends WP_CLI_Command {
 	 *     $ wp signup list --field=signup_id
 	 *     1
 	 *
+	 *     # List all signups.
+	 *     $ wp signup list
+	 *     +-----------+------------+---------------------+---------------------+--------+------------------+
+	 *     | signup_id | user_login | user_email          | registered          | active | activation_key   |
+	 *     +-----------+------------+---------------------+---------------------+--------+------------------+
+	 *     | 1         | bobuser    | bobuser@example.com | 2024-03-13 05:46:53 | 1      | 7320b2f009266618 |
+	 *     | 2         | johndoe    | johndoe@example.com | 2024-03-13 06:24:44 | 0      | 9068d859186cd0b5 |
+	 *     +-----------+------------+---------------------+---------------------+--------+------------------+
+	 *
 	 * @package wp-cli
 	 */
 	public function list( $args, $assoc_args ) {
