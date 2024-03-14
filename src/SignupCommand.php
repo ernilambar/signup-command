@@ -8,6 +8,9 @@ use WP_CLI_Command;
 
 class SignupCommand extends WP_CLI_Command {
 
+	/**
+	 * @var array $obj_fields Default fields to display for each object.
+	 */
 	protected $obj_fields = array(
 		'signup_id',
 		'user_login',
@@ -99,30 +102,74 @@ class SignupCommand extends WP_CLI_Command {
 
 		$format = Utils\get_flag_value( $assoc_args, 'format', 'table' );
 
+		$formatter = $this->get_formatter( $assoc_args );
+
 		if ( 'count' === $format ) {
 			WP_CLI::line( count( $signups ) );
 		} elseif ( 'ids' === $format ) {
-			$formatter = new WP_CLI\Formatter( $assoc_args );
-			$formatter->display_items( wp_list_pluck( $signups, 'signup_id' ) );
+			WP_CLI::line( implode( ' ', wp_list_pluck( $signups, 'signup_id' ) ) );
 		} else {
-			$formatter = new WP_CLI\Formatter( $assoc_args, $this->obj_fields );
 			$formatter->display_items( $signups );
 		}
 	}
 
 	/**
-	 * Activate an user.
+	 * Gets details about the signup.
 	 *
 	 * ## OPTIONS
 	 *
-	 * <user>
-	 * : ID, user login, user email or activation key.
+	 * <signup>
+	 * : Signup ID, user login, user email or activation key.
+	 *
+	 * [--field=<field>]
+	 * : Instead of returning the whole signup, returns the value of a single field.
+	 *
+	 * [--fields=<fields>]
+	 * : Get a specific subset of the signup's fields.
+	 *
+	 * [--format=<format>]
+	 * : Render output in a particular format.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - csv
+	 *   - json
+	 *   - yaml
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Activate signup with ID.
+	 *     # Get signup.
+	 *     $ wp signup get 1 --format=csv
+	 *     signup_id,user_login,user_email,registered,active,activation_key
+	 *     1,bobuser,bobuser@example.com,"2024-03-12 05:46:53",0,663b5af63dd930fd
+	 */
+	public function get( $args, $assoc_args ) {
+		$signup = $this->get_signup( $args[0] );
+
+		if ( false === $signup ) {
+			WP_CLI::error( 'Signup not found.' );
+		}
+
+		$formatter = $this->get_formatter( $assoc_args );
+
+		$formatter->display_items( array( $signup ) );
+	}
+
+	/**
+	 * Activates a signup.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <signup>
+	 * : Signup ID, user login, user email or activation key.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Activate signup.
 	 *     $ wp signup activate 2
-	 *     Success: User activated. Password: bZFSGsfzb9xs
+	 *     Success: Signup activated. Password: bZFSGsfzb9xs
 	 */
 	public function activate( $args, $assoc_args ) {
 		$signup = $this->get_signup( $args[0] );
@@ -136,25 +183,25 @@ class SignupCommand extends WP_CLI_Command {
 		}
 
 		if ( ! is_wp_error( $result ) ) {
-			WP_CLI::success( "User activated. Password: {$result['password']}" );
+			WP_CLI::success( "Signup activated. Password: {$result['password']}" );
 		} else {
-			WP_CLI::error( 'User could not be activated. Reason: ' . $result->get_error_message() );
+			WP_CLI::error( 'Signup could not be activated. Reason: ' . $result->get_error_message() );
 		}
 	}
 
 	/**
-	 * Delete an user from signups.
+	 * Deletes a signup.
 	 *
 	 * ## OPTIONS
 	 *
-	 * <user>
-	 * : ID, user login, user email or activation key.
+	 * <signup>
+	 * : Signup ID, user login, user email or activation key.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Delete an user from signups.
+	 *     # Delete signup.
 	 *     $ wp signup delete johndoe@example.com
-	 *     Success: User deleted.
+	 *     Success: Signup deleted.
 	 */
 	public function delete( $args, $assoc_args ) {
 		global $wpdb;
@@ -170,9 +217,9 @@ class SignupCommand extends WP_CLI_Command {
 		}
 
 		if ( $wpdb->rows_affected > 0 ) {
-			WP_CLI::success( 'User deleted.' );
+			WP_CLI::success( 'Signup deleted.' );
 		} else {
-			WP_CLI::error( 'Error occurred while deleting user.' );
+			WP_CLI::error( 'Error occurred while deleting signup.' );
 		}
 	}
 
@@ -210,5 +257,25 @@ class SignupCommand extends WP_CLI_Command {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get Formatter object based on supplied parameters.
+	 *
+	 * @param array $assoc_args Parameters passed to command. Determines formatting.
+	 * @return Formatter
+	 */
+	protected function get_formatter( &$assoc_args ) {
+
+		if ( ! empty( $assoc_args['fields'] ) ) {
+			if ( is_string( $assoc_args['fields'] ) ) {
+				$fields = explode( ',', $assoc_args['fields'] );
+			} else {
+				$fields = $assoc_args['fields'];
+			}
+		} else {
+			$fields = $this->obj_fields;
+		}
+		return new WP_CLI\Formatter( $assoc_args, $fields );
 	}
 }

@@ -16,11 +16,14 @@ This package implements the following commands:
 Lists signups.
 
 ~~~
-wp signup list [--field=<field>] [--fields=<fields>] [--format=<format>]
+wp signup list [--field=<field>] [--<field>=<value>] [--fields=<fields>] [--format=<format>]
 ~~~
 
 	[--field=<field>]
 		Prints the value of a single field for each signup.
+
+	[--<field>=<value>]
+		Filter results by key=value pairs.
 
 	[--fields=<fields>]
 		Limit the output to specific object fields.
@@ -32,8 +35,10 @@ wp signup list [--field=<field>] [--fields=<fields>] [--format=<format>]
 		options:
 		  - table
 		  - csv
+		  - ids
 		  - json
 		  - yaml
+		  - count
 		---
 
 **AVAILABLE FIELDS**
@@ -53,6 +58,7 @@ These fields are optionally available:
 * path
 * title
 * activated
+* meta
 
 **EXAMPLES**
 
@@ -64,22 +70,22 @@ These fields are optionally available:
 
 ### wp signup activate
 
-Activate a user.
+Activates a signup.
 
 ~~~
-wp signup activate <user>
+wp signup activate <signup>
 ~~~
 
 **OPTIONS**
 
-	<user>
-		ID, user login, user email or activation key.
+	<signup>
+		Signup ID, user login, user email or activation key.
 
 **EXAMPLES**
 
-    # Activate signup with ID.
+    # Activate signup.
     $ wp signup activate 2
-    Success: User activated. Password: bZFSGsfzb9xs
+    Success: Signup activated. Password: bZFSGsfzb9xs
 
 ## Installing
 
