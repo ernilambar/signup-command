@@ -86,3 +86,32 @@ Feature: Manage signups in a multisite installation
 			"""
 			1
 			"""
+
+		When I run `wp user get bobuser --field=user_email`
+		Then STDOUT should be:
+			"""
+			bobuser@example.com
+			"""
+
+	Scenario: Activate blog signup entry
+		Given a WP multisite install
+		And I run `wp eval 'wpmu_signup_blog( "example.com", "/bobsite/", "My Awesome Title", "bobuser", "bobuser@example.com" );'`
+
+		When I run `wp signup get bobuser --fields=user_login,domain,path,active --format=csv`
+		Then STDOUT should be:
+			"""
+			user_login,domain,path,active
+			bobuser,example.com,/bobsite/,0
+			"""
+
+		When I run `wp signup activate bobuser`
+		Then STDOUT should contain:
+			"""
+			Success: Signup activated.
+			"""
+
+		When I run `wp site list --fields=domain,path`
+		Then STDOUT should be a table containing rows:
+			| domain      | path      |
+			| example.com | /         |
+			| example.com | /bobsite/ |
